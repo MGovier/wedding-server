@@ -1,0 +1,23 @@
+{
+  "serverPort": 8080,
+  "menuChoices": {
+    "starters": [
+      "starter 1",
+      "starter 2"
+    ],
+    "mains": [
+      "main 1",
+      "main 2"
+    ]
+  },
+  "guests": [
+    {
+      "names": ["Steve", "Mary"],
+      "code": "ExampleCode"
+    },
+    {
+      "names": ["Joe"],
+      "code": "AnotherExample"
+    }
+  ]
+}
