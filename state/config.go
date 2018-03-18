@@ -10,6 +10,7 @@ var ActiveConfig Config
 type Config struct {
 	ServerPort  int     `json:"serverPort"`
 	Salt        string  `json:"sneakySalt"`
+	MailAPIKey  string  `json:"mailAPIKey"`
 	MenuChoices Menu    `json:"menuChoices"`
 	Guests      []Guest `json:"guests"`
 }

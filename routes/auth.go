@@ -8,10 +8,17 @@ import (
 	"fmt"
 	"github.com/MGovier/wedding-server/state"
 	"github.com/didip/tollbooth"
+	"github.com/didip/tollbooth/limiter"
 	"net/http"
+	"time"
 )
 
-var lmt = tollbooth.NewLimiter(1, nil)
+func RateLimitFunc(next func(w http.ResponseWriter, r *http.Request)) http.Handler {
+	lmt := tollbooth.NewLimiter(0.1, &limiter.ExpirableOptions{DefaultExpirationTTL: 5 * time.Minute})
+	lmt.SetBurst(5)
+	lmt.SetIPLookups([]string{"X-Forwarded-For", "X-Real-IP", "RemoteAddr"})
+	return tollbooth.LimitFuncHandler(lmt, next)
+}
 
 func HandleAuth(w http.ResponseWriter, r *http.Request) {
 	switch r.Method {
@@ -47,7 +54,7 @@ func handleAuthPost(w http.ResponseWriter, r *http.Request) {
 			cookie := &http.Cookie{
 				Name:     "BM_AuthCookie",
 				Value:    hash,
-				Secure:   true,
+				Secure:   false,
 				HttpOnly: true,
 				MaxAge:   31536000,
 			}
@@ -65,14 +72,14 @@ func handleAuthPost(w http.ResponseWriter, r *http.Request) {
 	return
 }
 
-func VerifyToken(token string) (string, error) {
+func VerifyToken(token string) (state.Guest, error) {
 	for _, guest := range state.ActiveConfig.Guests {
 		hasher := sha256.New()
-		hasher.Write([]byte(guest.Code))
+		hasher.Write([]byte(guest.Code + state.ActiveConfig.Salt))
 		hash := base64.URLEncoding.EncodeToString(hasher.Sum(nil))
 		if hash == token {
-			return guest.Code, nil
+			return guest, nil
 		}
 	}
-	return "", errors.New("could not find a guest for that code")
+	return state.Guest{}, errors.New("could not find a guest for that code")
 }

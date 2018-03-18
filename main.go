@@ -1,16 +1,17 @@
 package main
 
 import (
-	"net/http"
-	"log"
 	"github.com/MGovier/wedding-server/routes"
 	"github.com/MGovier/wedding-server/state"
+	"log"
+	"net/http"
 )
 
 func main() {
 	state.ReadConfig()
 	mux := http.NewServeMux()
-	mux.HandleFunc("/auth", routes.HandleAuth)
+	mux.Handle("/auth", routes.RateLimitFunc(routes.HandleAuth))
+	mux.HandleFunc("/rsvp", routes.HandleRSVP)
 
 	err := http.ListenAndServe(":8080", mux)
 	if err != nil {
