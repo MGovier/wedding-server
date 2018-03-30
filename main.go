@@ -9,6 +9,7 @@ import (
 
 func main() {
 	state.ReadConfig()
+	state.LoadData()
 	mux := http.NewServeMux()
 	mux.Handle("/auth", routes.RateLimitFunc(routes.HandleAuth))
 	mux.HandleFunc("/rsvp", routes.HandleRSVP)

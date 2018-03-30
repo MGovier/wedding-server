@@ -7,6 +7,7 @@ import (
 	"errors"
 	"fmt"
 	"github.com/MGovier/wedding-server/state"
+	"github.com/MGovier/wedding-server/types"
 	"github.com/didip/tollbooth"
 	"github.com/didip/tollbooth/limiter"
 	"net/http"
@@ -30,17 +31,9 @@ func HandleAuth(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
-type code struct {
-	Code string `json:"code"`
-}
-type authResponse struct {
-	Names []string `json:"names"`
-	Day   bool     `json:"day"`
-}
-
 func handleAuthPost(w http.ResponseWriter, r *http.Request) {
 	decoder := json.NewDecoder(r.Body)
-	var c code
+	var c types.Code
 	err := decoder.Decode(&c)
 	if err != nil {
 		http.Error(w, fmt.Sprint(err), http.StatusBadRequest)
@@ -60,7 +53,7 @@ func handleAuthPost(w http.ResponseWriter, r *http.Request) {
 			}
 			http.SetCookie(w, cookie)
 			w.Header().Set("Content-Type", "application/json")
-			jsn, _ := json.Marshal(authResponse{
+			jsn, _ := json.Marshal(types.AuthResponse{
 				Names: guest.Names,
 				Day:   guest.Day,
 			})
@@ -72,7 +65,7 @@ func handleAuthPost(w http.ResponseWriter, r *http.Request) {
 	return
 }
 
-func VerifyToken(token string) (state.Guest, error) {
+func VerifyToken(token string) (types.Guest, error) {
 	for _, guest := range state.ActiveConfig.Guests {
 		hasher := sha256.New()
 		hasher.Write([]byte(guest.Code + state.ActiveConfig.Salt))
@@ -81,5 +74,5 @@ func VerifyToken(token string) (state.Guest, error) {
 			return guest, nil
 		}
 	}
-	return state.Guest{}, errors.New("could not find a guest for that code")
+	return types.Guest{}, errors.New("could not find a guest for that code")
 }
