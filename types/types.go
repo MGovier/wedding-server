@@ -10,6 +10,7 @@ type RSVPPost struct {
 	Message string       `json:"message"`
 	Menu    []MenuChoice `json:"menu"`
 	Email   string       `json:"email"`
+	Names   []string     `json:"names,omitempty"`
 }
 
 type MenuChoice struct {

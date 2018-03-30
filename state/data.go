@@ -26,7 +26,6 @@ func LoadData() {
 	for _, v := range jsonArray {
 		ActiveData[v.Code] = v.RSVP
 	}
-	fmt.Println(ActiveData)
 }
 
 func saveData() {

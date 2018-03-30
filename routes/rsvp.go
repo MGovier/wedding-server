@@ -47,6 +47,7 @@ func handleRSVPPost(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, fmt.Sprint(err), http.StatusBadRequest)
 		return
 	}
+	p.Names = guest.Names
 	err = state.RecordRSVP(guest.Code, p)
 	if err != nil {
 		http.Error(w, "could not store data", http.StatusInternalServerError)
@@ -73,6 +74,10 @@ func handleRSVPGet(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	data, err := state.GetData(guest.Code)
+	if err != nil {
+		http.Error(w, "could not find RSVP data", http.StatusInternalServerError)
+		return
+	}
 	res, err := json.Marshal(data)
 	if err != nil {
 		http.Error(w, "could not marshal JSON RSVP data", http.StatusInternalServerError)
@@ -82,11 +87,14 @@ func handleRSVPGet(w http.ResponseWriter, r *http.Request) {
 }
 
 func validateRSVP(guest types.Guest, post types.RSVPPost) error {
-	if !guest.Day {
-		return nil
-	}
 	if post.RSVP == nil {
 		return errors.New("missing RSVP")
+	}
+	if !guest.Day && post.Menu != nil {
+		return errors.New("day guests should not pick menu choices")
+	}
+	if !guest.Day {
+		return nil
 	}
 	if len(post.Menu) != len(guest.Names) {
 		return errors.New("menu array length unexpected")
