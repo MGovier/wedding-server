@@ -42,18 +42,18 @@ func saveData() {
 		return
 	}
 
-	err = ioutil.WriteFile("data.json", content, 0600)
+	err = ioutil.WriteFile("data.json", content, 0644)
 	if err != nil {
 		fmt.Printf("could not write active data: %v", err)
 		return
 	}
 }
 
-func RecordRSVP(code string, rsvp types.RSVPPost) error {
-	if code == "" {
+func RecordRSVP(guest types.Guest, rsvp types.RSVPPost) error {
+	if guest.Code == "" {
 		return errors.New("invalid code")
 	}
-	ActiveData[code] = rsvp
+	ActiveData[guest.Code] = rsvp
 	saveData()
 	return nil
 }

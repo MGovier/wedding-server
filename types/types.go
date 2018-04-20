@@ -6,14 +6,14 @@ type RSVPWithCode struct {
 }
 
 type RSVPPost struct {
-	RSVP    *bool        `json:"rsvp,omitempty"`
-	Message string       `json:"message"`
-	Menu    []MenuChoice `json:"menu"`
-	Email   string       `json:"email"`
-	Names   []string     `json:"names,omitempty"`
+	Message string        `json:"message"`
+	Guests  []GuestDetail `json:"guests"`
+	Email   string        `json:"email"`
+	Names   []string      `json:"names,omitempty"`
+	Day     bool          `json:"day"`
 }
 
-type MenuChoice struct {
+type GuestDetail struct {
 	Starter   string `json:"starter"`
 	Main      string `json:"main"`
 	Name      string `json:"name"`
