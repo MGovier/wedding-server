@@ -38,10 +38,11 @@ func handleAuthPost(w http.ResponseWriter, r *http.Request) {
 	decoder := json.NewDecoder(r.Body)
 	var c types.Code
 	err := decoder.Decode(&c)
-	if err != nil {
+	if err != nil || len(c.Code) < 1 || len(c.Code) > 50 {
 		http.Error(w, fmt.Sprint(err), http.StatusBadRequest)
 		return
 	}
+	fmt.Printf("%v entered %v\n", r.Header.Get("X-Forwarded-For"), c.Code)
 	for _, guest := range state.ActiveConfig.Guests {
 		if strings.ToUpper(guest.Code) == strings.ToUpper(c.Code) {
 			hasher := sha256.New()
